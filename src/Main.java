@@ -1,15 +1,33 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.io.IOException;
+import java.util.Map;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        try {
+            // Загрузка sentiment данных
+            SentimentLoader sentimentLoader = new SentimentLoader();
+            Map<String, Double> sentiments = sentimentLoader.loadSentiments("C:/Intellij programs/TwiterTrends/sentiments.csv");
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+            // Инициализация TweetProcessor и TweetAnalyzer
+            TweetProcessor tweetProcessor = new TweetProcessor();
+            TweetAnalyzer tweetAnalyzer = new TweetAnalyzer(tweetProcessor);
+
+            // Анализ твитов
+            String tweetsFilePath = "C:/Intellij programs/TwiterTrends/movie_tweets2014.txt";
+            Map<String, Double> coordinateSentiments = tweetAnalyzer.analyzeTweetsFromFile(tweetsFilePath, sentiments);
+
+            // Вывод результатов
+            for (Map.Entry<String, Double> entry : coordinateSentiments.entrySet()) {
+                String sentimentValue = (entry.getValue() == null) ? "null" : entry.getValue().toString();
+                System.out.println(entry.getKey() + " " + sentimentValue);
+            }
+
+        } catch (IOException e) {
+            System.err.println("Ошибка при работе с файлами: " + e.getMessage());
+
+        } catch (Exception e) {
+            System.err.println("Произошла непредвиденная ошибка: " + e.getMessage());
+
         }
     }
 }
