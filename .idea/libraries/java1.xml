@@ -1,0 +1,22 @@
+<component name="libraryTable">
+  <library name="java1">
+    <CLASSES />
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/app/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/app/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/core/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/core/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/example/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/io/common/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/io/common/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/io/ora/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/io/ora/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/io/sde/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/lab/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/lab/src/test/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/tests/src/main/java" />
+      <root url="jar://$PROJECT_DIR$/lib/jts-master.zip!/jts-master/modules/tests/src/test/java" />
+    </SOURCES>
+  </library>
+</component>
