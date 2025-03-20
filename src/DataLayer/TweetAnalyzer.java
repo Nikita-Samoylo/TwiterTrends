@@ -1,3 +1,5 @@
+package DataLayer;
+
 import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,7 +24,6 @@ public class TweetAnalyzer {
             throw new FileNotFoundException("Файл не найден: " + filePath);
         }
 
-        // Используем LinkedHashMap для сохранения порядка
         Map<String, Double> coordinateSentiments = new LinkedHashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
@@ -30,19 +31,16 @@ public class TweetAnalyzer {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\t");
                 if (parts.length >= 4) {
-                    String coordinatesPart = parts[0]; // Координаты находятся в первой части
-                    String tweetText = parts[3]; // Текст твита находится в четвертой части
+                    String coordinatesPart = parts[0];
+                    String tweetText = parts[3];
 
-                    // Проверка корректности координат
                     if (!coordinatesPart.matches("\\[-?\\d+\\.\\d+, -?\\d+\\.\\d+\\]")) {
                         System.err.println("Некорректные координаты в строке: " + line);
-                        continue; // Пропустить строку, если координаты некорректны
+                        continue;
                     }
 
-                    // Анализ sentiment
                     Double sentiment = tweetProcessor.analyzeTweetSentiment(tweetText, sentiments);
 
-                    // Сохраняем результат по координатам
                     coordinateSentiments.put(coordinatesPart, sentiment);
                 } else {
                     System.err.println("Строка содержит недостаточно данных: " + line);

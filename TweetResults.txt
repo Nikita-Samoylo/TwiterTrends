@@ -1,7 +1,7 @@
 Tweet: Going to watch a scary movie, drink a pop that I'm not supposed to drink, and turn my phone off... Lovely Saturday for Katzee.
 Sentiment: -0.2857142857142857
 -----------------------------
-Tweet: The Lego movie was pretty adorable
+Tweet: The Lego movie was pretty adorable	
 Sentiment: 0.625
 -----------------------------
 Tweet: Dinner last night included beans. Popcorn at the subsequent movie. Youd be uptight, too, if your home bathrooms were unavailable all day.
