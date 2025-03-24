@@ -1,0 +1,75 @@
+/* Основной стиль для окна */
+.root {
+    -fx-background-color: linear-gradient(to bottom, #2c3e50, #34495e); /* Градиентный фон */
+}
+
+/* Стиль для текстового поля */
+.text-area {
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14px;
+    -fx-background-color: #2c3e50; /* Ещё более тёмный фон */
+    -fx-border-color: #4a6a8a; /* Светлая рамка */
+    -fx-border-radius: 5px;
+    -fx-padding: 15px;
+    -fx-text-fill: #2c3e50; /* Светлый текст */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 10, 0, 0, 0); /* Тень */
+}
+
+/* Стиль для кнопок */
+.button {
+    -fx-font-family: "Roboto";
+    -fx-font-size: 14px;
+    -fx-background-color: #3498db; /* Синий фон */
+    -fx-text-fill: white; /* Белый текст */
+    -fx-border-radius: 5px;
+    -fx-padding: 10px 20px;
+    -fx-cursor: hand; /* Курсор в виде руки */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 1); /* Тень */
+    -fx-transition: all 0.3s ease; /* Плавные переходы */
+}
+
+.button:hover {
+    -fx-background-color: #2980b9; /* Тёмно-синий фон при наведении */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.4), 10, 0, 0, 2); /* Увеличенная тень */
+    -fx-scale-x: 1.05; /* Увеличение при наведении */
+    -fx-scale-y: 1.05;
+}
+
+.button:pressed {
+    -fx-background-color: #1c5980; /* Ещё темнее при нажатии */
+}
+
+/* Стиль для панели с кнопками */
+.hbox {
+    -fx-padding: 20px;
+    -fx-background-color: rgba(255, 255, 255, 0.1); /* Полупрозрачный фон */
+    -fx-border-color: rgba(255, 255, 255, 0.2); /* Полупрозрачная рамка */
+    -fx-border-width: 1px 0 0 0; /* Рамка только сверху */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 10, 0, 0, 0); /* Тень */
+}
+
+/* Стиль для заголовка окна */
+.title {
+    -fx-font-family: "Roboto";
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ecf0f1; /* Светло-серый текст */
+}
+
+/* Стиль для Alert (всплывающих окон) */
+.dialog-pane {
+    -fx-background-color: #34495e; /* Тёмный фон */
+}
+
+.dialog-pane .label {
+    -fx-text-fill: #ecf0f1; /* Светло-серый текст */
+}
+
+.dialog-pane .button {
+    -fx-background-color: #3498db; /* Синий фон */
+    -fx-text-fill: white; /* Белый текст */
+}
+
+.dialog-pane .button:hover {
+    -fx-background-color: #2980b9; /* Тёмно-синий фон при наведении */
+}
