@@ -16,7 +16,7 @@ public class AppGUI extends Application {
 
     private TextArea resultArea;
     private Button selectFileButton;
-    private Button drawMapButton;
+    private Button analyzeButton; // Переименовано для ясности
     private File selectedFile;
     private TweetAnalysisService tweetAnalysisService;
 
@@ -26,114 +26,126 @@ public class AppGUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Анализ твитов и рисование карты");
-        primaryStage.setWidth(1000); // Увеличиваем ширину окна
-        primaryStage.setHeight(700); // Увеличиваем высоту окна
+        try {
+            primaryStage.setTitle("Анализ твитов по штатам"); // Обновлен заголовок
+            primaryStage.setWidth(1000);
+            primaryStage.setHeight(700);
 
-        // Инициализация сервиса для анализа твитов
-        tweetAnalysisService = new TweetAnalysisService();
+            // Инициализация сервиса с обработкой ошибок
+            tweetAnalysisService = new TweetAnalysisService();
 
-        // Создаем корневой контейнер
-        BorderPane root = new BorderPane();
+            BorderPane root = new BorderPane();
 
-        // Текстовое поле для вывода результатов
-        resultArea = new TextArea();
-        resultArea.setEditable(false);
-        resultArea.setWrapText(true); // Перенос текста
-        resultArea.setStyle("-fx-font-size: 14px;"); // Увеличиваем размер шрифта
+            // Текстовое поле с улучшенными настройками
+            resultArea = new TextArea();
+            resultArea.setEditable(false);
+            resultArea.setWrapText(true);
+            resultArea.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 14px;");
 
-        // Добавляем текстовое поле в ScrollPane
-        ScrollPane scrollPane = new ScrollPane(resultArea);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        root.setCenter(scrollPane);
+            ScrollPane scrollPane = new ScrollPane(resultArea);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setFitToHeight(true);
+            root.setCenter(scrollPane);
 
+            // Панель кнопок
+            HBox buttonPanel = new HBox(20);
+            buttonPanel.setAlignment(Pos.CENTER);
+            buttonPanel.setStyle("-fx-padding: 10px;");
 
-        // Панель для кнопок
-        HBox buttonPanel = new HBox(20); // Горизонтальный контейнер с отступом 20
-        buttonPanel.setAlignment(Pos.CENTER); // Центрируем кнопки
+            selectFileButton = new Button("Выбрать файл с твитами");
+            selectFileButton.setStyle("-fx-font-size: 14px; -fx-padding: 8px 16px;");
 
-        // Кнопка для выбора файла
-        selectFileButton = new Button("Выбрать файл с твитами");
-        selectFileButton.setStyle("-fx-font-size: 14px; -fx-padding: 10px;"); // Стиль кнопки
+            analyzeButton = new Button("Анализировать твиты"); // Переименовано
+            analyzeButton.setStyle("-fx-font-size: 14px; -fx-padding: 8px 16px;");
 
-        // Кнопка для анализа твитов и рисования карты
-        drawMapButton = new Button("Нарисовать карту");
-        drawMapButton.setStyle("-fx-font-size: 14px; -fx-padding: 10px;"); // Стиль кнопки
+            buttonPanel.getChildren().addAll(selectFileButton, analyzeButton);
+            root.setBottom(buttonPanel);
 
-        // Добавляем кнопки на панель
-        buttonPanel.getChildren().addAll(selectFileButton, drawMapButton);
+            // Настройка сцены
+            Scene scene = new Scene(root);
+            try {
+                scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            } catch (NullPointerException e) {
+                System.err.println("Файл стилей не найден");
+            }
 
-        // Добавляем панель с кнопками на основную панель
-        root.setBottom(buttonPanel);
+            primaryStage.setScene(scene);
+            primaryStage.show();
 
-        // Устанавливаем сцену и показываем окно
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-        primaryStage.setScene(scene);
-        primaryStage.show();
+            // Обработчики событий
+            selectFileButton.setOnAction(e -> selectFile(primaryStage));
+            analyzeButton.setOnAction(e -> analyzeTweets()); // Обновленный обработчик
 
-        // Обработчики событий для кнопок
-        selectFileButton.setOnAction(e -> selectFile(primaryStage));
-        drawMapButton.setOnAction(e -> analyzeAndDrawMap());
+        } catch (Exception e) {
+            showErrorAlert("Ошибка запуска", "Не удалось запустить приложение: " + e.getMessage());
+        }
     }
 
     private void selectFile(Stage primaryStage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Выберите файл с твитами");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Текстовые файлы", "*.txt"));
 
-        // Устанавливаем фильтр для текстовых файлов
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Текстовые файлы (*.txt)", "*.txt");
-        fileChooser.getExtensionFilters().add(extFilter);
-
-        // Показываем диалог выбора файла
         selectedFile = fileChooser.showOpenDialog(primaryStage);
 
         if (selectedFile != null) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Файл выбран");
-            alert.setHeaderText(null);
-            alert.setContentText("Выбран файл: " + selectedFile.getName());
-            alert.showAndWait();
+            showInfoAlert("Файл выбран", "Выбран файл: " + selectedFile.getAbsolutePath());
         }
     }
 
-    private void analyzeAndDrawMap() {
+    private void analyzeTweets() {
         if (selectedFile == null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Ошибка");
-            alert.setHeaderText(null);
-            alert.setContentText("Файл не выбран!");
-            alert.showAndWait();
+            showErrorAlert("Ошибка", "Файл не выбран!");
             return;
         }
 
         try {
-            // Очищаем текстовое поле перед новым анализом
             resultArea.clear();
+            Map<String, Double> stateSentiments = tweetAnalysisService.analyzeTweetsByState(selectedFile.getAbsolutePath());
 
-            // Анализируем твиты с помощью сервиса
-            Map<String, Double> coordinateSentiments = tweetAnalysisService.analyzeTweets(selectedFile.getAbsolutePath());
-
-            // Выводим результаты в текстовое поле
-            for (Map.Entry<String, Double> entry : coordinateSentiments.entrySet()) {
-                String sentimentValue = (entry.getValue() == null) ? "null" : entry.getValue().toString();
-                resultArea.appendText(entry.getKey() + " " + sentimentValue + "\n");
+            if (stateSentiments.isEmpty()) {
+                showInfoAlert("Результат", "Не найдено твитов с определёнными штатами");
+                return;
             }
 
-            // Сообщение о том, что карта будет реализована позже
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Информация");
-            alert.setHeaderText(null);
-            alert.setContentText("Анализ твитов завершен. Карта будет реализована позже.");
-            alert.showAndWait();
+            // Форматированный вывод
+            StringBuilder sb = new StringBuilder();
+            sb.append("Результаты анализа по штатам:\n\n");
+            sb.append(String.format("%-5s %s\n", "Код", "Средний сентимент"));
+            sb.append("----------------------------------------\n");
+
+            stateSentiments.forEach((stateCode, sentiment) -> {
+                String sentimentStr =
+                        String.format("%.2f", sentiment);
+
+                sb.append(String.format("%-5s %-20s\n", stateCode, sentimentStr));
+            });
+
+            resultArea.setText(sb.toString());
+            showInfoAlert("Анализ завершен",
+                    "Проанализировано твитов для " + stateSentiments.size() + " штатов");
 
         } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Ошибка");
-            alert.setHeaderText(null);
-            alert.setContentText("Произошла ошибка: " + e.getMessage());
-            alert.showAndWait();
+            showErrorAlert("Ошибка анализа", e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+
+    private void showInfoAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
