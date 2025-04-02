@@ -19,11 +19,11 @@ public class StatesParser {
         Iterator<Map.Entry<String, JsonNode>> fields = root.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
-            String stateName = field.getKey(); // Получаем название штата
+            String stateName = field.getKey(); //название штата
             List<Polygon> polygons = parsePolygons(field.getValue());
             states.add(new State(stateName, polygons));
 
-            // Выводим название штата в консоль
+            //выводим название штата
             System.out.println("Парсинг штата: " + stateName);
             System.out.println("Количество полигонов: " + polygons.size());
             for (Polygon polygon : polygons) {
@@ -39,16 +39,16 @@ public class StatesParser {
         if (node.isArray()) {
             for (JsonNode polygonNode : node) {
                 if (polygonNode.isArray()) {
-                    // Если это массив, проверяем, содержит ли он точки или вложенные полигоны
+                    //проверяем содержит ли он точки или вложенные полигоны
                     if (isPointArray(polygonNode)) {
-                        // Если это массив точек, создаем полигон
+                        //eсли это массив точек, создаем полигон
                         List<Point> points = parsePoints(polygonNode);
                         if (!points.isEmpty()) {
                             polygons.add(new Polygon(points));
                             System.out.println("Добавлен полигон с " + points.size() + " точками");
                         }
                     } else {
-                        // Если это вложенный массив, рекурсивно обрабатываем его
+                        //eсли это вложенный массив, рекурсивно обрабатываем его
                         List<Polygon> nestedPolygons = parsePolygons(polygonNode);
                         polygons.addAll(nestedPolygons);
                         System.out.println("Добавлено " + nestedPolygons.size() + " вложенных полигонов");
@@ -62,7 +62,6 @@ public class StatesParser {
     private static boolean isPointArray(JsonNode node) {
         if (node.isArray() && node.size() > 0) {
             JsonNode firstElement = node.get(0);
-            // Проверяем, является ли первый элемент массивом из двух чисел
             return firstElement.isArray() && firstElement.size() == 2 && firstElement.get(0).isNumber() && firstElement.get(1).isNumber();
         }
         return false;

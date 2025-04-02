@@ -1,24 +1,36 @@
 package PresentationLayer;
 
+import Map.PolygonDrawer;
+import Map.State;
+import Map.StatesParser;
 import javafx.application.Application;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AppGUI extends Application {
-
     private TextArea resultArea;
     private Button selectFileButton;
-    private Button analyzeButton; // Переименовано для ясности
+    private Button analyzeButton;
+    private Button showMapButton;
     private File selectedFile;
     private TweetAnalysisService tweetAnalysisService;
+    private List<State> states;
+    private Map<String, Double> stateSentiments;
+    private PolygonDrawer polygonDrawer;
 
     public static void main(String[] args) {
         launch(args);
@@ -27,70 +39,100 @@ public class AppGUI extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            primaryStage.setTitle("Анализ твитов по штатам"); // Обновлен заголовок
+            primaryStage.setTitle("Анализ твитов по штатам");
             primaryStage.setWidth(1000);
             primaryStage.setHeight(700);
 
-            // Инициализация сервиса с обработкой ошибок
+            // Инициализация сервиса
             tweetAnalysisService = new TweetAnalysisService();
+            states = loadStates();
+            stateSentiments = new HashMap<>();
+            polygonDrawer = new PolygonDrawer(states, stateSentiments);
 
-            BorderPane root = new BorderPane();
+            // Создаем главный контейнер с вкладками
+            TabPane tabPane = new TabPane();
 
-            // Текстовое поле с улучшенными настройками
-            resultArea = new TextArea();
-            resultArea.setEditable(false);
-            resultArea.setWrapText(true);
-            resultArea.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 14px;");
+            // Вкладка анализа
+            Tab analysisTab = new Tab("Анализ твитов");
+            analysisTab.setClosable(false);
+            analysisTab.setContent(createAnalysisTabContent());
 
-            ScrollPane scrollPane = new ScrollPane(resultArea);
-            scrollPane.setFitToWidth(true);
-            scrollPane.setFitToHeight(true);
-            root.setCenter(scrollPane);
+            // Вкладка карты
+            Tab mapTab = new Tab("Карта США");
+            mapTab.setClosable(false);
+            mapTab.setContent(createMapTabContent());
 
-            // Панель кнопок
-            HBox buttonPanel = new HBox(20);
-            buttonPanel.setAlignment(Pos.CENTER);
-            buttonPanel.setStyle("-fx-padding: 10px;");
+            tabPane.getTabs().addAll(analysisTab, mapTab);
 
-            selectFileButton = new Button("Выбрать файл с твитами");
-            selectFileButton.setStyle("-fx-font-size: 14px; -fx-padding: 8px 16px;");
-
-            analyzeButton = new Button("Анализировать твиты"); // Переименовано
-            analyzeButton.setStyle("-fx-font-size: 14px; -fx-padding: 8px 16px;");
-
-            buttonPanel.getChildren().addAll(selectFileButton, analyzeButton);
-            root.setBottom(buttonPanel);
-
-            // Настройка сцены
-            Scene scene = new Scene(root);
-            try {
-                scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-            } catch (NullPointerException e) {
-                System.err.println("Файл стилей не найден");
-            }
+            // Создаем сцену и применяем CSS
+            Scene scene = new Scene(tabPane);
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
             primaryStage.setScene(scene);
             primaryStage.show();
 
-            // Обработчики событий
-            selectFileButton.setOnAction(e -> selectFile(primaryStage));
-            analyzeButton.setOnAction(e -> analyzeTweets()); // Обновленный обработчик
-
         } catch (Exception e) {
             showErrorAlert("Ошибка запуска", "Не удалось запустить приложение: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private void selectFile(Stage primaryStage) {
+    private Node createAnalysisTabContent() {
+        BorderPane borderPane = new BorderPane();
+        borderPane.getStyleClass().add("root");
+
+        // Создаем верхнюю панель с кнопками
+        HBox topPanel = new HBox(10);
+        topPanel.setAlignment(Pos.CENTER);
+        topPanel.getStyleClass().add("hbox");
+
+        selectFileButton = new Button("Выбрать файл");
+        selectFileButton.getStyleClass().add("button");
+
+        analyzeButton = new Button("Анализировать");
+        analyzeButton.getStyleClass().add("button");
+
+        showMapButton = new Button("Показать карту");
+        showMapButton.getStyleClass().add("button");
+
+        selectFileButton.setOnAction(e -> selectFile());
+        analyzeButton.setOnAction(e -> analyzeTweets());
+        showMapButton.setOnAction(e -> showMap());
+
+        topPanel.getChildren().addAll(selectFileButton, analyzeButton, showMapButton);
+
+        // Создаем текстовую область для вывода результатов
+        resultArea = new TextArea();
+        resultArea.setEditable(false);
+        resultArea.setWrapText(true);
+        resultArea.getStyleClass().add("text-area");
+
+        // Добавляем компоненты в borderPane
+        borderPane.setTop(topPanel);
+        borderPane.setCenter(resultArea);
+
+        return borderPane;
+    }
+
+    // Остальные методы остаются без изменений
+    private List<State> loadStates() {
+        try {
+            return StatesParser.parse("states.json");
+        } catch (IOException e) {
+            showErrorAlert("Ошибка загрузки", "Не удалось загрузить данные о штатах");
+            return new ArrayList<>();
+        }
+    }
+
+    private void selectFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Выберите файл с твитами");
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Текстовые файлы", "*.txt"));
-
-        selectedFile = fileChooser.showOpenDialog(primaryStage);
-
+                new FileChooser.ExtensionFilter("Текстовые файлы", "*.txt", "*.csv")
+        );
+        selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
-            showInfoAlert("Файл выбран", "Выбран файл: " + selectedFile.getAbsolutePath());
+            resultArea.appendText("Выбран файл: " + selectedFile.getName() + "\n");
         }
     }
 
@@ -102,24 +144,27 @@ public class AppGUI extends Application {
 
         try {
             resultArea.clear();
-            Map<String, Double> stateSentiments = tweetAnalysisService.analyzeTweetsByState(selectedFile.getAbsolutePath());
+            stateSentiments = tweetAnalysisService.analyzeTweetsByState(selectedFile.getAbsolutePath());
 
             if (stateSentiments.isEmpty()) {
                 showInfoAlert("Результат", "Не найдено твитов с определёнными штатами");
                 return;
             }
 
-            // Форматированный вывод
+            // Обновляем карту с новыми данными
+            polygonDrawer = new PolygonDrawer(states, stateSentiments);
+            TabPane tabPane = (TabPane) resultArea.getScene().getRoot();
+            ((Tab)tabPane.getTabs().get(1)).setContent(polygonDrawer);
+
+            // Выводим результаты в текстовое поле
             StringBuilder sb = new StringBuilder();
             sb.append("Результаты анализа по штатам:\n\n");
-            sb.append(String.format("%-5s %s\n", "Код", "Средний сентимент"));
+            sb.append(String.format("%-15s %s\n", "Штат", "Средний сентимент"));
             sb.append("----------------------------------------\n");
 
-            stateSentiments.forEach((stateCode, sentiment) -> {
-                String sentimentStr =
-                        String.format("%.2f", sentiment);
-
-                sb.append(String.format("%-5s %-20s\n", stateCode, sentimentStr));
+            stateSentiments.forEach((stateName, sentiment) -> {
+                String sentimentStr = String.format("%.2f", sentiment);
+                sb.append(String.format("%-15s %-20s\n", stateName, sentimentStr));
             });
 
             resultArea.setText(sb.toString());
@@ -132,17 +177,26 @@ public class AppGUI extends Application {
         }
     }
 
+    private void showMap() {
+        TabPane tabPane = (TabPane) resultArea.getScene().getRoot();
+        tabPane.getSelectionModel().select(1); // Переключаемся на вкладку с картой
+    }
 
-    private void showInfoAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    private Node createMapTabContent() {
+        polygonDrawer.getStyleClass().add("map-pane"); // Добавляем CSS класс
+        return polygonDrawer;
+    }
+
+    private void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
 
-    private void showErrorAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+    private void showInfoAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);

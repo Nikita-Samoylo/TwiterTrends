@@ -73,3 +73,12 @@
 .dialog-pane .button:hover {
     -fx-background-color: #2980b9; /* Тёмно-синий фон при наведении */
 }
+/* Стиль для вкладки с картой */
+.tab-pane .tab-content-area {
+    -fx-background-color: white;
+}
+
+/* Стиль для самой карты */
+.map-pane {
+    -fx-background-color: white;
+}
