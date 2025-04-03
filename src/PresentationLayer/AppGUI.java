@@ -163,7 +163,8 @@ public class AppGUI extends Application {
             sb.append("----------------------------------------\n");
 
             stateSentiments.forEach((stateName, sentiment) -> {
-                String sentimentStr = String.format("%.2f", sentiment);
+                // Убираем форматирование, чтобы выводить полное значение
+                String sentimentStr = sentiment.toString();
                 sb.append(String.format("%-15s %-20s\n", stateName, sentimentStr));
             });
 
