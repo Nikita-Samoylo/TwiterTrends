@@ -24,7 +24,7 @@ public class PolygonDrawer extends Pane {
         calculateBounds();
         initializeCanvas();
 
-        // Установка белого фона для всего Pane
+        //установка белого фона
         this.setStyle("-fx-background-color: white; -fx-padding: 5 0 5 0; -fx-alignment: center-right;");
     }
 
@@ -64,7 +64,7 @@ public class PolygonDrawer extends Pane {
     private void draw() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
-        // Заливка всего canvas белым цветом
+        //халивка  canvas белым цветом
         gc.setFill(Color.WHITE);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
@@ -79,7 +79,7 @@ public class PolygonDrawer extends Pane {
         double offsetX = (width - (maxX - minX) * scale) * 0.05;
         double offsetY = (height - (maxY - minY) * scale) / 1.5;
 
-        // Более темные границы для лучшей видимости на белом фоне
+        //боолее темные границы
         gc.setStroke(Color.rgb(70, 70, 70));
         gc.setLineWidth(1.2);
 
@@ -104,7 +104,7 @@ public class PolygonDrawer extends Pane {
             }
         }
 
-        // Отрисовка названий штатов
+
         drawStateNames(gc, scale, offsetX, offsetY, width, height);
     }
 
@@ -113,7 +113,7 @@ public class PolygonDrawer extends Pane {
         gc.setFont(javafx.scene.text.Font.font("Arial", 10)); // Тонкий шрифт небольшого размера
 
         for (State state : states) {
-            // Вычисляем центр штата для размещения названия
+            //вычисляем центр штата для размещения названия
             double centerX = 0;
             double centerY = 0;
             int pointCount = 0;
@@ -130,11 +130,11 @@ public class PolygonDrawer extends Pane {
                 centerX /= pointCount;
                 centerY /= pointCount;
 
-                // Преобразуем координаты центра для отрисовки
+                //преобразуем координаты центра для отрисовки
                 double drawX = (centerX - minX) * scale + offsetX;
                 double drawY = height - ((centerY - minY) * scale + offsetY);
 
-                // Отрисовываем название штата
+                //отрисовываем название штата
                 gc.fillText(state.getName(), drawX, drawY);
             }
         }
@@ -148,17 +148,17 @@ public class PolygonDrawer extends Pane {
             if (sentiment >= -0.01 && sentiment <= 0.01) {
                 return Color.WHITE;
             }
-            // Позитивное настроение (желтый)
+            //позитивное настроение
             else if (sentiment > 0.01) {
-                double opacity = 0.7 + 0.3 * sentiment;
+                double opacity = 0.6 + 0.4 * sentiment;
                 return Color.rgb(
                         255,
-                        (int)(255 * (1 - sentiment * 0.3)),
+                        (int)(255 * (1 - sentiment * 0.8)),
                         0,
                         opacity
                 );
             }
-            // Негативное настроение (синий)
+            //негативное настроение
             else {
                 double opacity = 0.7 + 0.3 * (-sentiment);
                 return Color.rgb(
@@ -169,7 +169,7 @@ public class PolygonDrawer extends Pane {
                 );
             }
         }
-        // Серый для штатов без данных (с небольшой прозрачностью)
+        //серый для штатов без данных
         return Color.rgb(200, 200, 200, 0.5);
     }
 }

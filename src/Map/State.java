@@ -19,11 +19,7 @@ public class State {
         return polygons;
     }
 
-    /**
-     * Проверяет, принадлежит ли точка к этому штату
-     * @param point Точка для проверки
-     * @return true если точка находится внутри любого полигона штата
-     */
+
     public boolean contains(Point point) {
         if (point == null || polygons == null) {
             return false;
@@ -37,10 +33,7 @@ public class State {
         return false;
     }
 
-    /**
-     * Возвращает двухбуквенный код штата
-     * @return Код штата (например, "CA" для Калифорнии)
-     */
+
 
 
     @Override

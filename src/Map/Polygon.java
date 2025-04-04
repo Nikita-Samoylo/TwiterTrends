@@ -13,13 +13,7 @@ public class Polygon {
         return points;
     }
 
-    /**
-     * Проверяет, содержит ли полигон указанную точку
-     * используя алгоритм ray-casting (чет-нечет)
-     *
-     * @param testPoint точка для проверки
-     * @return true если точка внутри полигона, false если снаружи или на границе
-     */
+
     public boolean contains(Point testPoint) {
         if (testPoint == null || points == null || points.size() < 3) {
             return false;
@@ -36,13 +30,13 @@ public class Polygon {
                 continue;
             }
 
-            // Координаты текущей точки
+            // координаты текущей точки
             double xi = p1.getX();
             double yi = p1.getY();
             double xj = p2.getX();
             double yj = p2.getY();
 
-            // Проверка пересечения луча с ребром полигона
+            // проверка пересечения луча с ребром полигона
             boolean intersect = ((yi > testPoint.getY()) != (yj > testPoint.getY()))
                     && (testPoint.getX() < (xj - xi) * (testPoint.getY() - yi) / (yj - yi) + xi);
 
