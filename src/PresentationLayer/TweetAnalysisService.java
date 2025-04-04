@@ -1,11 +1,14 @@
 package PresentationLayer;
 
+import Map.StatesParser;
 import DataLayer.SentimentLoader;
 import DataLayer.StateMapper;
 import DataLayer.TweetAnalyzer;
 import DataLayer.TweetProcessor;
+import Map.State;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public class TweetAnalysisService {
@@ -16,17 +19,24 @@ public class TweetAnalysisService {
     public TweetAnalysisService() throws IOException {
         this.sentimentLoader = new SentimentLoader();
         this.tweetAnalyzer = new TweetAnalyzer(new TweetProcessor());
-        this.stateMapper = new StateMapper("states.json");
+        this.stateMapper = new StateMapper(loadStates());
+    }
+    // парсинг штатов
+    List<State> loadStates() throws IOException {
+        List<State> states = StatesParser.parse("states.json");
+        if (states == null || states.isEmpty()) {
+            throw new IllegalStateException("Не удалось загрузить или распарсить данные о штатах");
+        }
+        return states;
     }
 
     public Map<String, Double> analyzeTweetsByState(String filePath) throws Exception {
-        // 1. Анализируем как раньше (получаем координаты + сентимент)
+        // первый анализ (получаем словарь координаты + сентимент)
         Map<String, Double> coordinateSentiments = tweetAnalyzer.analyzeTweetsFromFile(
                 filePath,
                 sentimentLoader.loadSentiments("sentiments.csv")
         );
-
-        // 2. Преобразуем координаты в названия штатов
+        // второй анализ (получаем словарь штаты + сентимент)
         return stateMapper.mapToStates(coordinateSentiments);
     }
 }

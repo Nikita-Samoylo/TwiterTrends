@@ -27,17 +27,18 @@ public class TweetAnalyzer {
         Map<String, Double> coordinateSentiments = new LinkedHashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
+            // чтение файла построчно
             String line;
             while ((line = reader.readLine()) != null) {
-                // Разделяем строку на части, но учитываем, что в тексте твита могут быть табы
+                // проверка, что строка содержит минимум 3 табуляции и они расположены в правильном порядке
                 int firstTab = line.indexOf('\t');
                 int secondTab = line.indexOf('\t', firstTab + 1);
                 int thirdTab = line.indexOf('\t', secondTab + 1);
 
                 if (firstTab > 0 && secondTab > firstTab && thirdTab > secondTab) {
-                    String coordinatesPart = line.substring(0, firstTab);
-                    // Пропускаем вторую часть (подчеркивание)
-                    String tweetText = line.substring(thirdTab + 1);
+                    // извлечение данных
+                    String coordinatesPart = line.substring(0, firstTab); // координаты
+                    String tweetText = line.substring(thirdTab + 1); // текст
 
                     if (!coordinatesPart.matches("\\[-?\\d+\\.\\d+, -?\\d+\\.\\d+\\]")) {
                         System.err.println("Некорректные координаты в строке: " + line);
@@ -45,13 +46,13 @@ public class TweetAnalyzer {
                     }
 
                     Double sentiment = tweetProcessor.analyzeTweetSentiment(tweetText, sentiments);
+                    // сохраняет результат
                     coordinateSentiments.put(coordinatesPart, sentiment);
                 } else {
                     System.err.println("Строка содержит недостаточно данных: " + line);
                 }
             }
         }
-
         return coordinateSentiments;
     }
 }

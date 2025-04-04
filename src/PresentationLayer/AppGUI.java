@@ -1,8 +1,7 @@
 package PresentationLayer;
 
-import Map.PolygonDrawer;
 import Map.State;
-import Map.StatesParser;
+import Map.PolygonDrawer;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -10,13 +9,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +24,9 @@ public class AppGUI extends Application {
     private Button showMapButton;
     private File selectedFile;
     private TweetAnalysisService tweetAnalysisService;
-    private List<State> states;
     private Map<String, Double> stateSentiments;
     private PolygonDrawer polygonDrawer;
+    private List<State> states;
 
     public static void main(String[] args) {
         launch(args);
@@ -39,32 +35,31 @@ public class AppGUI extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
+            // настройка окна
             primaryStage.setTitle("Анализ твитов по штатам");
             primaryStage.setWidth(1000);
             primaryStage.setHeight(700);
 
-            // Инициализация сервиса
             tweetAnalysisService = new TweetAnalysisService();
-            states = loadStates();
+
+            states = tweetAnalysisService.loadStates();
+
             stateSentiments = new HashMap<>();
             polygonDrawer = new PolygonDrawer(states, stateSentiments);
 
-            // Создаем главный контейнер с вкладками
+            // панель
             TabPane tabPane = new TabPane();
-
-            // Вкладка анализа
             Tab analysisTab = new Tab("Анализ твитов");
             analysisTab.setClosable(false);
             analysisTab.setContent(createAnalysisTabContent());
 
-            // Вкладка карты
+            // карта
             Tab mapTab = new Tab("Карта США");
             mapTab.setClosable(false);
             mapTab.setContent(createMapTabContent());
-
             tabPane.getTabs().addAll(analysisTab, mapTab);
 
-            // Создаем сцену и применяем CSS
+            // стиль
             Scene scene = new Scene(tabPane);
             scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
@@ -77,11 +72,11 @@ public class AppGUI extends Application {
         }
     }
 
+    // создание вкладок
     private Node createAnalysisTabContent() {
         BorderPane borderPane = new BorderPane();
         borderPane.getStyleClass().add("root");
 
-        // Создаем верхнюю панель с кнопками
         HBox topPanel = new HBox(10);
         topPanel.setAlignment(Pos.CENTER);
         topPanel.getStyleClass().add("hbox");
@@ -101,29 +96,18 @@ public class AppGUI extends Application {
 
         topPanel.getChildren().addAll(selectFileButton, analyzeButton, showMapButton);
 
-        // Создаем текстовую область для вывода результатов
         resultArea = new TextArea();
         resultArea.setEditable(false);
         resultArea.setWrapText(true);
         resultArea.getStyleClass().add("text-area");
 
-        // Добавляем компоненты в borderPane
         borderPane.setTop(topPanel);
         borderPane.setCenter(resultArea);
 
         return borderPane;
     }
 
-    // Остальные методы остаются без изменений
-    private List<State> loadStates() {
-        try {
-            return StatesParser.parse("states.json");
-        } catch (IOException e) {
-            showErrorAlert("Ошибка загрузки", "Не удалось загрузить данные о штатах");
-            return new ArrayList<>();
-        }
-    }
-
+    // диалог выбора файла
     private void selectFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Выберите файл с твитами");
@@ -136,6 +120,7 @@ public class AppGUI extends Application {
         }
     }
 
+    // анализ твита
     private void analyzeTweets() {
         if (selectedFile == null) {
             showErrorAlert("Ошибка", "Файл не выбран!");
@@ -151,21 +136,19 @@ public class AppGUI extends Application {
                 return;
             }
 
-            // Обновляем карту с новыми данными
+            // обновление отрисовки карты
             polygonDrawer = new PolygonDrawer(states, stateSentiments);
             TabPane tabPane = (TabPane) resultArea.getScene().getRoot();
             ((Tab)tabPane.getTabs().get(1)).setContent(polygonDrawer);
 
-            // Выводим результаты в текстовое поле
+            // вывод результатов
             StringBuilder sb = new StringBuilder();
             sb.append("Результаты анализа по штатам:\n\n");
             sb.append(String.format("%-15s %s\n", "Штат", "Средний сентимент"));
             sb.append("----------------------------------------\n");
 
             stateSentiments.forEach((stateName, sentiment) -> {
-                // Убираем форматирование, чтобы выводить полное значение
-                String sentimentStr = sentiment.toString();
-                sb.append(String.format("%-15s %-20s\n", stateName, sentimentStr));
+                sb.append(String.format("%-15s %-20s\n", stateName, sentiment.toString()));
             });
 
             resultArea.setText(sb.toString());
@@ -178,13 +161,15 @@ public class AppGUI extends Application {
         }
     }
 
+    // вкладка с картой
     private void showMap() {
         TabPane tabPane = (TabPane) resultArea.getScene().getRoot();
-        tabPane.getSelectionModel().select(1); // Переключаемся на вкладку с картой
+        tabPane.getSelectionModel().select(1);
     }
 
+    // содержимое карты
     private Node createMapTabContent() {
-        polygonDrawer.getStyleClass().add("map-pane"); // Добавляем CSS класс
+        polygonDrawer.getStyleClass().add("map-pane");
         return polygonDrawer;
     }
 

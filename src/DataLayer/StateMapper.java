@@ -1,9 +1,7 @@
 package DataLayer;
 
 import Map.State;
-import Map.StatesParser;
 import Map.Point;
-import java.io.IOException;
 import java.math.RoundingMode;
 import java.util.*;
 import java.text.DecimalFormat;
@@ -15,20 +13,17 @@ public class StateMapper {
     private static final DecimalFormat DF;
 
     static {
-        // Устанавливаем DecimalFormat с локалью US (использует точку как разделитель)
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
         symbols.setDecimalSeparator('.');
         DF = new DecimalFormat("#.######", symbols);
         DF.setRoundingMode(RoundingMode.HALF_UP);
     }
 
-    public StateMapper(String statesJsonPath) throws IOException {
-        this.states = StatesParser.parse(statesJsonPath);
+    public StateMapper(List<State> states) {
+        this.states = Objects.requireNonNull(states, "Список штатов не может быть null");
     }
 
-    /**
-     * Преобразует Map<Координаты, Сентимент> в Map<Штат, Сентимент>
-     */
+    // преобразование словаря (координаты + значение) в словарь (штаты + значение)
     public Map<String, Double> mapToStates(Map<String, Double> coordinateSentiments) {
         Map<String, Double> stateSentimentSums = new HashMap<>();
         Map<String, Integer> stateCounts = new HashMap<>();
@@ -36,36 +31,29 @@ public class StateMapper {
         for (Map.Entry<String, Double> entry : coordinateSentiments.entrySet()) {
             String coordinates = entry.getKey();
             Double sentiment = entry.getValue();
-
-            // Пропускаем записи с null сентиментом
             if (sentiment == null) {
                 continue;
             }
 
-            // Парсим координаты
             Point point = parseCoordinates(coordinates);
             if (point == null) continue;
 
-            // Находим штат
             String stateCode = findStateForPoint(point);
             if (stateCode == null) continue;
 
-            // Обновляем сумму и количество для штата
             stateSentimentSums.merge(stateCode, sentiment, Double::sum);
             stateCounts.merge(stateCode, 1, Integer::sum);
         }
 
-        // Вычисляем средние значения
         Map<String, Double> result = new HashMap<>();
         for (Map.Entry<String, Double> entry : stateSentimentSums.entrySet()) {
+            // подчет среднего сентимента
             String state = entry.getKey();
             double sum = entry.getValue();
             int count = stateCounts.get(state);
             double average = sum / count;
-            // Форматируем и парсим обратно, чтобы получить округленное значение
             result.put(state, Double.parseDouble(DF.format(average)));
         }
-
         return result;
     }
 
