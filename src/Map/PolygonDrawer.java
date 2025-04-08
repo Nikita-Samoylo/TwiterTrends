@@ -150,7 +150,7 @@ public class PolygonDrawer extends Pane {
             }
             //позитивное настроение
             else if (sentiment > 0.01) {
-                double opacity = 0.6 + 0.4 * sentiment;
+                double opacity = 1;
                 return Color.rgb(
                         255,
                         (int)(255 * (1 - sentiment * 0.8)),
@@ -160,7 +160,7 @@ public class PolygonDrawer extends Pane {
             }
             //негативное настроение
             else {
-                double opacity = 0.7 + 0.3 * (-sentiment);
+                double opacity = 1;
                 return Color.rgb(
                         (int)(150 * (1 + sentiment)),
                         (int)(150 * (1 + sentiment)),

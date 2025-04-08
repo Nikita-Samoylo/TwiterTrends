@@ -1,4 +1,4 @@
-package DataLayer;
+package Data;
 
 import java.util.*;
 

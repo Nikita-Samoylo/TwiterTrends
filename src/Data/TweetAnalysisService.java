@@ -1,10 +1,6 @@
-package PresentationLayer;
+package Data;
 
 import Map.StatesParser;
-import DataLayer.SentimentLoader;
-import DataLayer.StateMapper;
-import DataLayer.TweetAnalyzer;
-import DataLayer.TweetProcessor;
 import Map.State;
 
 import java.io.IOException;
@@ -22,7 +18,7 @@ public class TweetAnalysisService {
         this.stateMapper = new StateMapper(loadStates());
     }
     // парсинг штатов
-    List<State> loadStates() throws IOException {
+    public List<State> loadStates() throws IOException {
         List<State> states = StatesParser.parse("states.json");
         if (states == null || states.isEmpty()) {
             throw new IllegalStateException("Не удалось загрузить или распарсить данные о штатах");

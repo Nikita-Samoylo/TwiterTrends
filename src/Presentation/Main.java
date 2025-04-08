@@ -1,7 +1,6 @@
-package DataLayer;
+package Presentation;
 
 import javafx.application.Application;
-import PresentationLayer.AppGUI;
 
 public class Main {
     public static void main(String[] args) {
